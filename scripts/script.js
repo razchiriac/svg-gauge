@@ -60,7 +60,7 @@ class Gauge {
     
     this.initRedzones();
     this.setRedzoneRight(25);
-    this.setRedzoneLeft(12.5);
+    this.setRedzoneLeft(20);
     this.ignite();
   };
   
@@ -78,10 +78,9 @@ class Gauge {
   
   // TODO: rotate redzone to the left side. Reflect over y axis ?
   setRedzoneLeft(range, offset = 0) {
-    SVG.wrap(this.redzoneLeft.selector).transform({scaleX: -1});
     this.redzoneLeft.drawLength = this.redzoneLeft.pathLength * range / 300;
     this.redzoneLeft.path.style.strokeDashoffset = this.redzoneLeft.pathLength - this.redzoneLeft.drawLength;
-    let startOffset = -30 - (this.range * (offset / 100));
+    let startOffset = 30 + (this.range * (offset / 100) + (range / 100 * this.range));
     SVG.wrap(this.redzoneLeft.selector).transform({rotation: startOffset});
   };
   

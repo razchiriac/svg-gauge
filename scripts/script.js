@@ -59,7 +59,8 @@ class Gauge {
     this.markerRight.hide();
     
     this.initRedzones();
-    this.setRedzoneLeft(25);
+    this.setRedzoneRight(25);
+    this.setRedzoneLeft(12.5);
     this.ignite();
   };
   
@@ -77,17 +78,18 @@ class Gauge {
   
   // TODO: rotate redzone to the left side. Reflect over y axis ?
   setRedzoneLeft(range, offset = 0) {
-     this.redzoneLeft.drawLength = this.redzoneLeft.pathLength * range / 300;
-     this.redzoneLeft.path.style.strokeDashoffset = this.redzoneLeft.pathLength - this.redzoneLeft.drawLength;
-     let startOffset = -30 - (this.range * (offset / 100));
-     SVG.wrap(this.redzoneLeft.selector).transform({rotation: startOffset});
+    SVG.wrap(this.redzoneLeft.selector).transform({scaleX: -1});
+    this.redzoneLeft.drawLength = this.redzoneLeft.pathLength * range / 300;
+    this.redzoneLeft.path.style.strokeDashoffset = this.redzoneLeft.pathLength - this.redzoneLeft.drawLength;
+    let startOffset = -30 - (this.range * (offset / 100));
+    SVG.wrap(this.redzoneLeft.selector).transform({rotation: startOffset});
   };
   
   setRedzoneRight(range, offset = 0) {
-     this.redzoneRight.drawLength = this.redzoneRight.pathLength * range / 300;
-     this.redzoneRight.path.style.strokeDashoffset = this.redzoneRight.pathLength - this.redzoneRight.drawLength;
-     let startOffset = -30 - (this.range * (offset / 100));
-     SVG.wrap(this.redzoneRight.selector).transform({rotation: startOffset});
+    this.redzoneRight.drawLength = this.redzoneRight.pathLength * range / 300;
+    this.redzoneRight.path.style.strokeDashoffset = this.redzoneRight.pathLength - this.redzoneRight.drawLength;
+    let startOffset = -30 - (this.range * (offset / 100));
+    SVG.wrap(this.redzoneRight.selector).transform({rotation: startOffset});
   };
   
   moveRightHandTo(degree, easing = '<>', duration = 1000) {

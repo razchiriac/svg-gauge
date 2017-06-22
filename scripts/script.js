@@ -29,8 +29,37 @@ function capitalize(string) {
 
 class Gauge {
   constructor() {
-    this.rightHand = SVG.wrap($('#right-hand-wrapper'));
-    this.leftHand = SVG.wrap($('#left-hand-wrapper'));
+    
+    this.hands = {
+      left: {
+        selector: SVG.wrap($('#left-hand-wrapper')),
+        moveDuration: 1000,
+        moveEasing: '<>',
+        degrees: {
+          min: -240,
+          max: -120
+        },
+        values: {
+          min: 0,
+          max: 4000
+        },
+        currentValue: 0
+      },
+      right: {
+        selector: SVG.wrap($('#right-hand-wrapper')),
+        moveDuration: 1000,
+        moveEasing: '<>',
+        degrees: {
+          min: 60,
+          max: -60
+        },
+        values: {
+          min: 0,
+          max: 400
+        },
+        currentValue: 0
+      }
+    };
   
     this.markerLeft = {
       selector: $('#marker-left'),
@@ -42,6 +71,7 @@ class Gauge {
       path: null,
       pathLength: 0
     };
+    
     this.redzoneLeft = {
       selector: $('#redzone-left'),
       path: null,
@@ -72,8 +102,8 @@ class Gauge {
     this.setMarkerRight(350);
     this.setMarkerLeft(2000);
     this.ignite();
-    this.moveLeftHandTo(1500);
-    this.moveRightHandTo(250);
+    this.leftHand(1500);
+    this.rightHand(250);
   };
   
   initRedzones() {
@@ -127,21 +157,31 @@ class Gauge {
     SVG.wrap(this.markerRight.selector).transform({rotation: startOffset});
   };
   
-  moveRightHandTo(value, easing = '<>', duration = 1000) {
-    let location = value / this.rightHandValueRange[1] * 120;
-    this.rightHand.animate({ ease: easing, duration: duration }).transform({rotation: this.rightHandDegRange[0] - location});
+  rightHand(value) {
+    if (arguments.length > 0) {
+      this.hands.right.currentValue = value;
+      let location = this.hands.right.currentValue / this.rightHandValueRange[1] * 120;
+      this.hands.right.selector.animate({ ease: this.hands.right.easing, duration: this.hands.right.duration }).transform({rotation: this.rightHandDegRange[0] - location});
+    } else {
+      return this.hands.right.currentValue;
+    }
   };
-  moveLeftHandTo(value, easing = '<>', duration = 1000) {
-    let location = value / this.leftHandValueRange[1] * 120;
-    this.leftHand.animate({ ease: easing, duration: duration }).transform({rotation: this.leftHandDegRange[0] + location});
+  leftHand(value) {
+    if (arguments.length > 0) {
+      this.hands.left.currentValue = value;
+      let location = this.hands.left.currentValue / this.leftHandValueRange[1] * 120;
+      this.hands.left.selector.animate({ ease: this.hands.left.easing, duration: this.hands.left.duration }).transform({rotation: this.leftHandDegRange[0] + location});
+    } else {
+      return this.hands.left.currentValue;
+    }
   };
   
   ignite() {
-    this.moveLeftHandTo(4000);
-    this.moveRightHandTo(400);
+    this.leftHand(4000);
+    this.rightHand(400);
     
-    this.moveLeftHandTo(0);
-    this.moveRightHandTo(0);
+    this.leftHand(0);
+    this.rightHand(0);
   };
   
 }

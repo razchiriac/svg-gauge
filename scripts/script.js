@@ -60,18 +60,36 @@ class Gauge {
         currentValue: 0
       }
     };
-  
-    this.markerLeft = {
-      selector: $('#marker-left'),
-      path: null,
-      pathLength: 0
+    this.markers = {
+      left: {
+        selector: $('#marker-left'),
+        path: null,
+        pathLength: 0,
+        currentValue: 0
+      },
+      right: {
+        selector: $('#marker-right'),
+        path: null,
+        pathLength: 0,
+        currentValue: 0
+      }
     };
-    this.markerRight = {
-      selector: $('#marker-right'),
-      path: null,
-      pathLength: 0
+    this.redzones = {
+      left: {
+        selector: $('#redzone-left'),
+        path: null,
+        pathLength: 0,
+        range: 0,
+        offset: 0
+      },
+      right: {
+        selector: $('#redzone-right'),
+        path: null,
+        pathLength: 0,
+        range: 0,
+        offset: 0
+      }
     };
-    
     this.redzoneLeft = {
       selector: $('#redzone-left'),
       path: null,
@@ -83,24 +101,16 @@ class Gauge {
       pathLength: 0
     };
     
-    this.leftHandDegRange = [-240,-120];
-    this.rightHandDegRange = [60,-60];
-    
-    this.leftHandValueRange = [0,4000];
-    this.rightHandValueRange = [0,400];
-    
     this.range = 120;
   };
   
   init() {
-    // TODO: method to init markers
-    
     this.initRedzones();
-    this.setRedzoneRight(50,50);
-    this.setRedzoneLeft(1000,250);
+    this.rightRedzone(50,50);
+    this.leftRedzone(1000,250);
     this.initMarkers();
-    this.setMarkerRight(350);
-    this.setMarkerLeft(2000);
+    this.rightMarker(350);
+    this.leftMarker(2000);
     this.ignite();
     this.leftHand(1500);
     this.rightHand(250);
@@ -119,49 +129,74 @@ class Gauge {
   };
   
   initMarkers() {
-    this.markerLeft.path = this.markerLeft.selector.get(0);
-    this.markerLeft.pathLength = this.markerLeft.path.getTotalLength();
-    this.markerLeft.path.style.strokeDasharray = this.markerLeft.pathLength + ' ' + this.markerLeft.pathLength;
-    this.markerLeft.path.style.strokeDashoffset = this.markerLeft.pathLength;
-    
-    this.markerRight.path = this.markerRight.selector.get(0);
-    this.markerRight.pathLength = this.markerRight.path.getTotalLength();
-    this.markerRight.path.style.strokeDasharray = this.markerRight.pathLength + ' ' + this.markerRight.pathLength;
-    this.markerRight.path.style.strokeDashoffset = this.markerRight.pathLength;
+    this.markers.left.path = this.markers.left.selector.get(0);
+    this.markers.left.pathLength = this.markers.left.path.getTotalLength();
+    this.markers.left.path.style.strokeDasharray = this.markers.left.pathLength + ' ' + this.markers.left.pathLength;
+    this.markers.left.path.style.strokeDashoffset = this.markers.left.pathLength;
+    this.markers.left.currentValue = 0;
+    this.markers.right.path = this.markers.right.selector.get(0);
+    this.markers.right.pathLength = this.markers.right.path.getTotalLength();
+    this.markers.right.path.style.strokeDasharray = this.markers.right.pathLength + ' ' + this.markers.right.pathLength;
+    this.markers.right.path.style.strokeDashoffset = this.markers.right.pathLength;
+    this.markers.right.currentValue = 0;
   };
   
-  // TODO: Change inputs to make them based on actual range
-  setRedzoneLeft(range, offset = 0) {
-    this.redzoneLeft.drawLength = this.redzoneLeft.pathLength * range / this.leftHandValueRange[1] / 3;
-    this.redzoneLeft.path.style.strokeDashoffset = this.redzoneLeft.pathLength - this.redzoneLeft.drawLength;
-    let startOffset = 30 + (this.range * (offset / this.leftHandValueRange[1]) + (range / this.leftHandValueRange[1] * this.range));
-    SVG.wrap(this.redzoneLeft.selector).transform({rotation: startOffset});
+  leftRedzone(range, offset = 0) {
+    if (arguments.length > 0) {
+      this.redzones.left.range = range;
+      this.redzones.left.offset = offset;
+      this.redzoneLeft.drawLength = this.redzoneLeft.pathLength * range / this.hands.left.values.max / 3;
+      this.redzoneLeft.path.style.strokeDashoffset = this.redzoneLeft.pathLength - this.redzoneLeft.drawLength;
+      let startOffset = 30 + (this.range * (offset / this.hands.left.values.max) + (range / this.hands.left.values.max * this.range));
+      SVG.wrap(this.redzoneLeft.selector).transform({rotation: startOffset});
+    } else {
+      return [this.redzones.left.range, this.redzones.left.offset];
+    }
   };
-  setRedzoneRight(range, offset = 0) {
-    this.redzoneRight.drawLength = this.redzoneRight.pathLength * range / this.rightHandValueRange[1] / 3;
-    this.redzoneRight.path.style.strokeDashoffset = this.redzoneRight.pathLength - this.redzoneRight.drawLength;
-    let startOffset = -30 - (this.range * (offset / this.rightHandValueRange[1]));
-    SVG.wrap(this.redzoneRight.selector).transform({rotation: startOffset});
+  rightRedzone(range, offset = 0) {
+    if (arguments.length > 0) {
+      this.redzones.right.range = range;
+      this.redzones.right.offset = offset;
+      this.redzoneRight.drawLength = this.redzoneRight.pathLength * range / this.hands.right.values.max / 3;
+      this.redzoneRight.path.style.strokeDashoffset = this.redzoneRight.pathLength - this.redzoneRight.drawLength;
+      let startOffset = -30 - (this.range * (offset / this.hands.right.values.max));
+      SVG.wrap(this.redzoneRight.selector).transform({rotation: startOffset});
+    } else {
+      return [this.redzones.right.range, this.redzones.right.offset];
+    }
   };
   
-  setMarkerLeft(value) {
-    this.markerLeft.drawLength = 2;
-    this.markerLeft.path.style.strokeDashoffset = this.markerLeft.pathLength - this.markerLeft.drawLength;
-    let startOffset = 30 + (this.range * (value / this.leftHandValueRange[1]) );
-    SVG.wrap(this.markerLeft.selector).transform({rotation: startOffset});
+  leftMarker(value) {
+    if (arguments.length > 0) {
+      this.markers.left.currentValue = value;
+      this.markers.left.drawLength = 2;
+      this.markers.left.path.style.strokeDashoffset = this.markers.left.pathLength - this.markers.left.drawLength;
+      let startOffset = 30 + (this.range * (value / this.hands.left.values.max) );
+      SVG.wrap(this.markers.left.selector).transform({rotation: startOffset});
+    } else {
+      return this.markers.left.currentValue;
+    }
   };
-  setMarkerRight(value) {
-    this.markerRight.drawLength = 2;
-    this.markerRight.path.style.strokeDashoffset = this.markerRight.pathLength - this.markerRight.drawLength;
-    let startOffset = -30 - (this.range * (value / this.rightHandValueRange[1]));
-    SVG.wrap(this.markerRight.selector).transform({rotation: startOffset});
+  rightMarker(value) {
+    if (arguments.length > 0) {
+      this.markers.right.currentValue = value;
+      this.markers.right.drawLength = 2;
+      this.markers.right.path.style.strokeDashoffset = this.markers.right.pathLength - this.markers.right.drawLength;
+      let startOffset = -30 - (this.range * (value / this.hands.right.values.max));
+      SVG.wrap(this.markers.right.selector).transform({rotation: startOffset});
+    } else {
+      return this.markers.right.currentValue;
+    }
   };
   
   rightHand(value) {
     if (arguments.length > 0) {
       this.hands.right.currentValue = value;
-      let location = this.hands.right.currentValue / this.rightHandValueRange[1] * 120;
-      this.hands.right.selector.animate({ ease: this.hands.right.easing, duration: this.hands.right.duration }).transform({rotation: this.rightHandDegRange[0] - location});
+      let location = this.hands.right.currentValue / this.hands.right.values.max * 120;
+      this.hands.right.selector.animate({ 
+        ease: this.hands.right.moveEasing, 
+        duration: this.hands.right.moveDuration 
+      }).transform({rotation: this.hands.right.degrees.min - location});
     } else {
       return this.hands.right.currentValue;
     }
@@ -169,8 +204,11 @@ class Gauge {
   leftHand(value) {
     if (arguments.length > 0) {
       this.hands.left.currentValue = value;
-      let location = this.hands.left.currentValue / this.leftHandValueRange[1] * 120;
-      this.hands.left.selector.animate({ ease: this.hands.left.easing, duration: this.hands.left.duration }).transform({rotation: this.leftHandDegRange[0] + location});
+      let location = this.hands.left.currentValue / this.hands.left.values.max * 120;
+      this.hands.left.selector.animate({ 
+        ease: this.hands.left.moveEasing, 
+        duration: this.hands.left.moveDuration 
+      }).transform({rotation: this.hands.left.degrees.min + location});
     } else {
       return this.hands.left.currentValue;
     }
@@ -179,7 +217,6 @@ class Gauge {
   ignite() {
     this.leftHand(4000);
     this.rightHand(400);
-    
     this.leftHand(0);
     this.rightHand(0);
   };

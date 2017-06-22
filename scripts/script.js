@@ -29,7 +29,19 @@ function capitalize(string) {
 
 class Gauge {
   constructor() {
+    this.numbers = {
+      left: {
+        selectors: [],
+        values: []
+      },
+      right: {
+        selectors: [],
+        values: []
+      }
+    };
     
+    this.leftValueSelectors = [];
+    this.rightValueSelectors = [];
     this.hands = {
       left: {
         selector: SVG.wrap($('#left-hand-wrapper')),
@@ -105,6 +117,7 @@ class Gauge {
   };
   
   init() {
+    this.initNumbers();
     this.initRedzones();
     this.rightRedzone(50,50);
     this.leftRedzone(1000,250);
@@ -114,6 +127,24 @@ class Gauge {
     this.ignite();
     this.leftHand(1500);
     this.rightHand(250);
+  };
+  
+  // creates selectors for all valuse left and right
+  initNumbers() {
+    let odds = [];
+    for (let i = 35; i > 0; i-=2) {
+      odds.push(i);
+    }
+    odds.forEach( value => {
+    	let string = "#text-" + value;
+    	if ( value >= 19 ) {
+    		this.numbers.left.selectors.push(string);
+        this.numbers.left.values.push($(string).text().trim());
+    	} else {
+    		this.numbers.right.selectors.push(string);
+        this.numbers.right.values.push($(string).text().trim());
+    	}
+    });
   };
   
   initRedzones() {
@@ -212,6 +243,10 @@ class Gauge {
     } else {
       return this.hands.left.currentValue;
     }
+  };
+  
+  leftValues(min, max) {
+    
   };
   
   ignite() {

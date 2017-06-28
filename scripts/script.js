@@ -225,9 +225,8 @@ class Gauge {
     this.markers.right.currentValue = 0;
   };
   
-  // TODO check for out of range
   leftRedzone(range, offset = 0) {
-    if (arguments.length > 0) {
+    if (arguments.length > 0 && range + offset <= this.hands.left.values.max) {
       this.redzones.left.range = range;
       this.redzones.left.offset = offset;
       this.redzones.left.drawLength = this.redzones.left.pathLength * range / this.hands.left.values.max / 3;
@@ -238,7 +237,7 @@ class Gauge {
     return [this.redzones.left.range, this.redzones.left.offset];
   };
   rightRedzone(range, offset = 0) {
-    if (arguments.length > 0) {
+    if (arguments.length > 0 && range + offset <= this.hands.right.values.max) {
       this.redzones.right.range = range;
       this.redzones.right.offset = offset;
       this.redzones.right.drawLength = this.redzones.right.pathLength * range / this.hands.right.values.max / 3;
@@ -248,9 +247,8 @@ class Gauge {
     }
     return [this.redzones.right.range, this.redzones.right.offset];
   };
-  // TODO check for out of range
   leftMarker(value) {
-    if (arguments.length > 0) {
+    if (arguments.length > 0 && value <= this.hands.left.values.max) {
       this.markers.left.currentValue = value;
       this.markers.left.drawLength = 2;
       this.markers.left.path.style.strokeDashoffset = this.markers.left.pathLength - this.markers.left.drawLength;
@@ -260,7 +258,7 @@ class Gauge {
     return this.markers.left.currentValue;
   };
   rightMarker(value) {
-    if (arguments.length > 0) {
+    if (arguments.length > 0 && value <= this.hands.right.values.max) {
       this.markers.right.currentValue = value;
       this.markers.right.drawLength = 2;
       this.markers.right.path.style.strokeDashoffset = this.markers.right.pathLength - this.markers.right.drawLength;
@@ -269,9 +267,8 @@ class Gauge {
     }
     return this.markers.right.currentValue;
   };
-  // TODO check for out of range
   rightHand(value) {
-    if (arguments.length > 0) {
+    if (arguments.length > 0 && value <= this.hands.right.values.max) {
       this.hands.right.currentValue = value;
       let location = this.hands.right.currentValue / this.hands.right.values.max * 120;
       this.hands.right.selector.animate({ 
@@ -282,7 +279,7 @@ class Gauge {
     return this.hands.right.currentValue;
   };
   leftHand(value) {
-    if (arguments.length > 0) {
+    if (arguments.length > 0 && value <= this.hands.left.values.max) {
       this.hands.left.currentValue = value;
       let location = this.hands.left.currentValue / this.hands.left.values.max * 120;
       this.hands.left.selector.animate({ 
